@@ -29,6 +29,14 @@ footer{text-align:center;color:#777;font-size:11px;padding:8px 12px 25px}
 <main>
 <section class="panel">
 <h2><small>01 / MAKLUMAT HARTANAH</small>Isi Maklumat Hartanah</h2>
+<div class="section" style="margin-bottom:14px">
+<h3>Import Listing Ejen Lain → Versi MPIRE</h3>
+<label for="importListing">Tampal copywriting / detail listing asal di sini</label>
+<textarea id="importListing" placeholder="Tampal keseluruhan iklan hartanah daripada ejen lain di sini..."></textarea>
+<div class="actions"><button type="button" class="dark" onclick="importOtherListing()">AMBIL MAKLUMAT & TUKAR KE MPIRE</button></div>
+<div class="small">Sistem cuba mengesan maklumat hartanah seperti jenis, lokasi, harga, keluasan, bilik, pegangan dan ciri. Maklumat ejen, nombor telefon, REN, pautan, nama agensi dan hashtag asal tidak akan disalin. Maklumat ejen MPIRE anda kekal digunakan.</div>
+<div id="importStatus" class="small" style="margin-top:7px"></div>
+</div>
 <label>Kategori</label><select id="cat"><option value="Residential">Residential</option><option value="Commercial">Commercial</option><option value="Industrial">Industrial</option><option value="Land">Land</option><option value="Project">Project / New Development</option><option value="Auction">Auction / Lelong</option></select>
 <div class="two"><div><label>Jenis Urus Niaga</label><select id="deal"><option value="sale">Untuk Dijual</option><option value="rent">Untuk Disewa</option><option value="lease">Untuk Dipajak</option></select></div><div><label>Jenis Hartanah</label><select id="type"></select></div></div>
 <label>Jenis Hartanah Lain (jika tiada dalam pilihan)</label><input id="customType" placeholder="Isi jenis hartanah sendiri jika perlu">
@@ -41,7 +49,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:8px 12px 25px}
 <label>Kemudahan / Lokasi Strategik</label><textarea id="amenities" placeholder="Contoh: sekolah, hospital, masjid, highway, shopping mall"></textarea>
 <div class="two"><div><label>Nama Ejen</label><input id="agent" placeholder="Nama ejen"></div><div><label>No. REN</label><input id="ren" placeholder="Contoh: REN 12345"></div></div>
 <label>Telefon / WhatsApp</label><input id="phone" placeholder="01X-XXXXXXX">
-<label>Link WhatsApp (pilihan)</label><input id="wa" placeholder="https://wa.me/60...">
+<label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="makeWa" type="checkbox" style="width:auto;transform:scale(1.15)"> Jana pautan WhatsApp secara automatik</label><div class="small">Tandakan jika mahu pautan WhatsApp dimasukkan. Sistem akan gunakan nombor telefon di atas.</div>
 <div class="actions"><button class="primary" onclick="generate()">JANA COPYWRITING PROFESIONAL</button><button class="soft" onclick="resetForm()">RESET</button></div>
 <p class="small">Isi fakta yang ada sahaja. Sistem tidak akan mereka maklumat hartanah yang tidak diberikan.</p>
 </section>
@@ -86,10 +94,114 @@ Auction:{bm:['rumah lelong','rumah lelong bank','hartanah lelong','rumah lelong 
 }
 function titleCase(s){return s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}
 function fmtPrice(p){return p?'RM '+Number(p).toLocaleString('en-MY'):''}
-function areaSqft(x){if(!x)return '';return /sq\\s*ft|sqft|kaki\\s*persegi/i.test(x)?x:x+' sqft';}
+function areaSqft(x){if(!x)return '';return /sq\s*ft|sqft|kaki\s*persegi/i.test(x)?x:x+' sqft';}
+function makeWhatsAppLink(number){let n=(number||'').replace(/\D/g,'');if(!n)return '';if(n.startsWith('0'))n='60'+n.slice(1);else if(!n.startsWith('60'))n='60'+n;return 'https://wa.me/'+n;}
+
+function importOtherListing(){
+ const raw=$('importListing').value.trim();
+ if(!raw){alert('Sila tampal detail listing asal dahulu.');return;}
+ const text=raw.replace(/\r/g,' ').replace(/[ \t]+/g,' ');
+ const low=text.toLowerCase();
+ const set=(id,value)=>{if(value!==undefined&&value!==null&&String(value).trim())$(id).value=String(value).trim();};
+ const firstMatch=(patterns)=>{
+   for(const p of patterns){const m=text.match(p);if(m&&m[1])return m[1].trim();}
+   return '';
+ };
+ // Deal type
+ if(/for rent|untuk disewa|disewakan|rental|sewa bulanan/i.test(text)) $('deal').value='rent';
+ else if(/pajak|lease\b|leased/i.test(text)) $('deal').value='lease';
+ else $('deal').value='sale';
+
+ // Category and property type detection
+ let cat='Residential';
+ if(/kilang|factory|warehouse|gudang|industrial|industri/i.test(text))cat='Industrial';
+ else if(/shoplot|shop office|kedai|commercial|komersial|office lot/i.test(text))cat='Commercial';
+ else if(/tanah|land\b|acre|ekar|lot banglo/i.test(text))cat='Land';
+ else if(/projek baru|new project|new development|under construction|launching/i.test(text))cat='Project';
+ else if(/lelong|auction|foreclosure/i.test(text))cat='Auction';
+ $('cat').value=cat;updatePropertyTypes();
+
+ let type='';
+ const typePatterns=[
+  [/rumah teres\s*3\s*tingkat|3[- ]storey terrace/i,'Rumah Teres 3 Tingkat'],
+  [/rumah teres\s*2\s*tingkat|2[- ]storey terrace/i,'Rumah Teres 2 Tingkat'],
+  [/rumah teres\s*1\s*tingkat|1[- ]storey terrace/i,'Rumah Teres 1 Tingkat'],
+  [/semi[- ]?d|semi detached/i,'Rumah Berkembar (Semi-D)'],
+  [/banglo|bungalow/i,'Rumah Banglo'],
+  [/townhouse/i,'Townhouse'],[/condominium|kondominium/i,'Kondominium'],
+  [/apartment|pangsapuri/i,'Apartment'],[/flat\b/i,'Flat'],
+  [/shop ?lot|lot kedai/i,'Lot Kedai (Shoplot)'],[/shop office|kedai pejabat/i,'Kedai Pejabat (Shop Office)'],
+  [/kilang sesebuah|detached factory/i,'Kilang Sesebuah'],[/kilang berkembar|semi[- ]detached factory/i,'Kilang Berkembar'],
+  [/kilang teres|terrace factory/i,'Kilang Teres'],[/warehouse|gudang/i,'Gudang'],
+  [/tanah pertanian|agricultural land/i,'Tanah Pertanian'],[/tanah industri|industrial land/i,'Tanah Industri'],
+  [/tanah bangunan|building land/i,'Tanah Bangunan'],[/lot banglo|bungalow lot/i,'Lot Banglo']
+ ];
+ for(const [rx,label] of typePatterns){if(rx.test(text)){type=label;break;}}
+ if(type && [...$('type').options].some(o=>o.text===type))$('type').value=type;
+ else if(type)set('customType',type);
+ else {
+   const explicit=firstMatch([/(?:property type|jenis hartanah|jenis rumah|type)\s*[:\-]\s*([^,\n|]+)/i]);
+   if(explicit)set('customType',explicit);
+ }
+
+ // Location from common label patterns or locality after "located at/in"
+ let location=firstMatch([
+  /(?:lokasi|location|alamat|address|area)\s*[:\-]\s*([^,\n|]+(?:,\s*[^,\n|]+){0,2})/i,
+  /(?:located at|located in|berlokasi di|terletak di)\s+([^.\n|]+)/i
+ ]);
+ if(!location){
+   const m=text.match(/\b(?:Taman|Bandar|Kampung|Kg\.?|Jalan|Lorong|Persiaran|Residensi|Desa|Heights|Park|Garden|Gardens)\s+[A-Z0-9][A-Za-z0-9'’\- ]{2,45}/);
+   if(m)location=m[0].trim();
+ }
+ if(location)set('location',location.replace(/\s{2,}/g,' '));
+
+ // Price, avoid phone numbers by requiring currency or price label
+ let price=firstMatch([
+  /(?:asking price|selling price|harga jualan|harga|price|rental|sewa)\s*[:\-]?\s*(?:RM|MYR)?\s*([0-9][0-9,]*(?:\.\d{1,2})?)/i,
+  /(?:RM|MYR)\s*([0-9][0-9,]*(?:\.\d{1,2})?)/i
+ ]);
+ if(price)set('price',price.replace(/,/g,''));
+
+ const land=firstMatch([
+  /(?:land area|land size|keluasan tanah|luas tanah|lot size)\s*[:\-]?\s*([0-9,]+(?:\.\d+)?)\s*(?:sq\.?\s*ft|sqft|kps)?/i
+ ]);
+ const built=firstMatch([
+  /(?:built[- ]?up(?: area)?|keluasan binaan|luas binaan)\s*[:\-]?\s*([0-9,]+(?:\.\d+)?)\s*(?:sq\.?\s*ft|sqft|kps)?/i
+ ]);
+ if(land)set('land',land.replace(/,/g,''));
+ if(built)set('built',built.replace(/,/g,''));
+ const beds=firstMatch([/(?:bedrooms?|bilik tidur|bilik)\s*[:\-]?\s*(\d+)/i,/(\d+)\s*(?:bedrooms?|bilik tidur)/i]);
+ const baths=firstMatch([/(?:bathrooms?|bilik air)\s*[:\-]?\s*(\d+)/i,/(\d+)\s*(?:bathrooms?|bilik air)/i]);
+ if(beds)set('beds',beds);if(baths)set('baths',baths);
+
+ if(/freehold|pegangan bebas/i.test(text))$('tenure').value='Freehold';
+ else if(/leasehold|pajakan/i.test(text))$('tenure').value='Leasehold';
+ else if(/rezab melayu|malay reserved/i.test(text))$('tenure').value='Rezab Melayu / Malay Reserved';
+ else if(/non[- ]?bumi/i.test(text))$('tenure').value='Non-Bumi Lot';
+ else if(/\bbumi lot\b/i.test(text))$('tenure').value='Bumi Lot';
+
+ if(/fully renovated|renovasi penuh|ubah suai sepenuhnya/i.test(text))$('condition').value='Fully Renovated';
+ else if(/partially renovated|partially reno|renovasi sebahagian/i.test(text))$('condition').value='Partially Renovated';
+ else if(/basic renovation|renovasi asas/i.test(text))$('condition').value='Basic Renovation';
+ else if(/well maintained|dijaga rapi/i.test(text))$('condition').value='Well Maintained';
+ else if(/brand new|baru siap/i.test(text))$('condition').value='Brand New';
+
+ // Collect feature/amenity lines, while excluding agent/contact/agency/marketing clutter.
+ const ignored=/whatsapp|contact|call|hubungi|agent|ejen|ren\b|phone|telefon|tel\b|agency|agensi|real estate|property negotiator|hashtag|#|facebook|instagram|website|http|www\.|email|owner|pemilik|commission|komisen/i;
+ const candidates=text.split(/\n|•|✓|✔|🔹|🔸|▪|➤/).map(x=>x.replace(/^[\s\-–—*]+/,'').trim()).filter(x=>x.length>3&&!ignored.test(x));
+ const amenityWords=/school|sekolah|hospital|klinik|masjid|surau|highway|lebuh raya|tol\b|mall|pasar|market|bank|universiti|university|airport|lapangan terbang|stesen|station/i;
+ const amen=candidates.filter(x=>amenityWords.test(x)).slice(0,8);
+ const feature=candidates.filter(x=>!amenityWords.test(x)&&!/(?:RM|MYR)\s*\d|sqft|sq ft|freehold|leasehold|bedroom|bathroom|bilik tidur|bilik air|land area|built.?up/i.test(x)).slice(0,8);
+ if(feature.length)set('features',feature.join(', '));
+ if(amen.length)set('amenities',amen.join(', '));
+
+ const found=[type,location,price,land,built,beds,baths].filter(Boolean).length;
+ $('importStatus').textContent=`Maklumat berjaya dikesan: ${found} butiran utama. Semak semula semua medan, lengkapkan yang kosong, kemudian jana copywriting MPIRE. Maklumat ejen asal tidak diimport.`;
+}
+
 function generate(){
  const cat=v('cat'),deal=v('deal'),rent=deal==='rent',lease=deal==='lease',verb=rent?'untuk disewa':lease?'untuk dipajak':'untuk dijual';
- const type=v('customType')||v('type'),loc=v('location'),price=fmtPrice(v('price')),land=areaSqft(v('land')),built=areaSqft(v('built')),beds=v('beds'),baths=v('baths'),tenure=v('tenure'),condition=v('condition'),features=split('features'),amenities=split('amenities'),agent=v('agent'),ren=v('ren'),phone=v('phone'),wa=v('wa');
+ const type=v('customType')||v('type'),loc=v('location'),price=fmtPrice(v('price')),land=areaSqft(v('land')),built=areaSqft(v('built')),beds=v('beds'),baths=v('baths'),tenure=v('tenure'),condition=v('condition'),features=split('features'),amenities=split('amenities'),agent=v('agent'),ren=v('ren'),phone=v('phone'),wa=$('makeWa').checked?makeWhatsAppLink(phone):'';
  if(!type&&!loc){alert('Sila isi sekurang-kurangnya jenis hartanah dan lokasi.');return;}
  const locWords=loc?[`${cat==='Land'?'tanah':cat==='Industrial'?'kilang':cat==='Commercial'?'kedai':'rumah'} ${verb} ${loc}`,`${cat==='Land'?'tanah':cat==='Industrial'?'kilang':cat==='Commercial'?'hartanah komersial':'hartanah'} ${loc}`,`hartanah di ${loc}`]:[];
  const base=categoryTerms[cat],key=unique([type?`${type} ${verb}`:'',...locWords,...base.bm,...features.map(x=>`${x} ${loc}`)]);
@@ -97,7 +209,7 @@ function generate(){
  const details=[land?'• Keluasan Tanah: '+land:'',built?'• Keluasan Binaan (Built-up): '+built:'',beds?'• Bilik Tidur: '+beds:'',baths?'• Bilik Air: '+baths:'',tenure?'• Pegangan: '+tenure:'',condition?'• Keadaan: '+condition:''].filter(Boolean);
  const categoryMalay={Residential:'Hartanah Kediaman',Commercial:'Hartanah Komersial',Industrial:'Hartanah Industri',Land:'Tanah',Project:'Projek Hartanah',Auction:'Hartanah Lelong'};
  const title=type||categoryMalay[cat],dealLabel=rent?'UNTUK DISEWA':lease?'UNTUK DIPAJAK':'UNTUK DIJUAL',priceLabel=rent?'Harga Sewa':lease?'Kadar Pajakan':'Harga Jualan',headline=`${dealLabel} | ${title.toUpperCase()}${loc?' DI '+loc.toUpperCase():''}`;
- const bm=[`🏡 ${headline}`,price?`💰 ${priceLabel}: ${price}${rent?' / bulan':lease?' (tertakluk kepada tempoh pajakan)':''}`:'',details.length?'📋 BUTIRAN HARTANAH\n'+details.join('\n'):'',features.length?'✨ KELEBIHAN HARTANAH\n'+features.map(x=>'• '+x).join('\n'):'',amenities.length?'📍 LOKASI STRATEGIK & KEMUDAHAN BERDEKATAN\n'+amenities.map(x=>'• '+x).join('\n'):'',`Mencari ${title.toLowerCase()} ${verb}${loc?' di '+loc:''}? Ini peluang untuk anda. Hubungi kami bagi mendapatkan maklumat lanjut atau mengatur lawatan.`,agent?'👤 Ejen: '+agent:'',ren?'🪪 No. REN: '+ren:'',phone?'📲 WhatsApp: '+phone:'',wa?'🔗 '+wa:'',hashtag.join(' '),'HOMEFIELD ESTATE SDN BHD ( E(1)1339 )','-ESTABLISHED SINCE 1996-','| BUY | SELL | REFINANCE | RENT-RESIDENTIAL | NEW DEVELOPMENT | LAND | COMMERCIAL |'].filter(Boolean).join('\n\n');
+ const bm=[`🏡 ${headline}`,price?`💰 ${priceLabel}: ${price}${rent?' / bulan':lease?' (tertakluk kepada tempoh pajakan)':''}`:'',details.length?'📋 BUTIRAN HARTANAH\n'+details.join('\n'):'',features.length?'✨ KELEBIHAN HARTANAH\n'+features.map(x=>'• '+x).join('\n'):'',amenities.length?'📍 LOKASI STRATEGIK & KEMUDAHAN BERDEKATAN\n'+amenities.map(x=>'• '+x).join('\n'):'',`Mencari ${title.toLowerCase()} ${verb}${loc?' di '+loc:''}? Ini peluang untuk anda. Hubungi kami bagi mendapatkan maklumat lanjut atau mengatur viewing.`,agent?'👤 Ejen: '+agent:'',ren?'🪪 No. REN: '+ren:'',phone?'📲 WhatsApp: '+phone:'',wa?'🔗 Pautan WhatsApp: '+wa:'','HOMEFIELD ESTATE SDN BHD ( E(1)1339 )','-ESTABLISHED SINCE 1996-','| BUY | SELL | REFINANCE | RENT-RESIDENTIAL | NEW DEVELOPMENT | LAND | COMMERCIAL |',hashtag.join(' ')].filter(Boolean).join('\n\n');
  generated=bm;
  $('copy').textContent=generated;
  $('keywords').innerHTML=key.map(x=>'<span class="chip">'+escapeHtml(x)+'</span>').join('');
@@ -106,5 +218,5 @@ function generate(){
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function copyText(){if(!generated)return;try{await navigator.clipboard.writeText(generated);alert('Copywriting berjaya disalin.');}catch(e){alert('Clipboard tidak tersedia. Sila pilih dan salin teks.');}}
 function downloadText(){if(!generated)return;let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([generated],{type:'text/plain;charset=utf-8'}));a.download='mpire-smart-listing.txt';a.click();URL.revokeObjectURL(a.href);}
-function resetForm(){document.querySelectorAll('input,textarea').forEach(x=>x.value='');$('cat').value='Residential';$('deal').value='sale';$('customType').value='';updatePropertyTypes();generated='';$('copy').textContent='Lengkapkan maklumat hartanah dan tekan Jana Copywriting Profesional.';$('keywords').innerHTML='<span class="small">Akan dijana secara automatik.</span>';$('hashtags').innerHTML='<span class="small">Akan dijana secara automatik.</span>';}
+function resetForm(){document.querySelectorAll('input,textarea').forEach(x=>x.value='');$('makeWa').checked=false;$('cat').value='Residential';$('deal').value='sale';$('customType').value='';updatePropertyTypes();generated='';$('copy').textContent='Lengkapkan maklumat hartanah dan tekan Jana Copywriting Profesional.';$('keywords').innerHTML='<span class="small">Akan dijana secara automatik.</span>';$('hashtags').innerHTML='<span class="small">Akan dijana secara automatik.</span>';}
 </script></body></html>
