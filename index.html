@@ -59,6 +59,18 @@ footer{text-align:center;color:#777;font-size:11px;padding:8px 12px 25px}
 <div class="actions"><button class="dark" onclick="copyText()">SALIN IKLAN PENUH</button><button class="soft" onclick="downloadText()">MUAT TURUN TXT</button></div>
 <div class="section"><h3>Kata Kunci Utama & Sokongan</h3><div id="keywords" class="chips"><span class="small">Akan dijana secara automatik.</span></div></div>
 <div class="section"><h3>Hashtag Facebook</h3><div id="hashtags" class="chips"><span class="small">Akan dijana secara automatik.</span></div></div>
+<div class="section">
+<h3>Tag Produk (Maksimum 20)</h3>
+<textarea id="productTags" readonly placeholder="Tag produk akan dijana secara automatik..." style="min-height:95px"></textarea>
+<div class="actions"><button type="button" class="soft" onclick="copyField('productTags')">SALIN TAG PRODUK</button></div>
+<div class="small">Tag dijana berdasarkan kategori, jenis hartanah, lokasi dan ciri yang dimasukkan. Pilih tag yang paling berkaitan jika platform mengehadkan jumlah.</div>
+</div>
+<div class="section">
+<h3>SKU Hartanah</h3>
+<input id="propertySku" readonly placeholder="SKU akan dijana secara automatik">
+<div class="actions"><button type="button" class="soft" onclick="copyField('propertySku')">SALIN SKU</button></div>
+<div class="small">Kod rujukan unik berdasarkan kategori, lokasi, tarikh dan butiran listing. Simpan SKU ini untuk rujukan dalaman.</div>
+</div>
 <div class="section"><h3>Panduan SEO Facebook</h3><div class="small">Keyword utama diletakkan dalam tajuk dan ayat awal. Lokasi dan ciri hartanah dimasukkan secara semula jadi. Hashtag dipilih berdasarkan kategori dan lokasi. Ini ialah cadangan SEO, bukan data ranking atau volume carian Facebook yang disahkan.</div></div>
 </section></main>
 <footer>MPIRE PROPERTIES · HOMEFIELD REAL ESTATE SDN. BHD. · Sila semak semua maklumat hartanah sebelum diterbitkan.</footer>
@@ -199,6 +211,51 @@ function importOtherListing(){
  $('importStatus').textContent=`Maklumat berjaya dikesan: ${found} butiran utama. Semak semula semua medan, lengkapkan yang kosong, kemudian jana copywriting MPIRE. Maklumat ejen asal tidak diimport.`;
 }
 
+
+function slugCode(value,max=8){
+ return (value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()
+ .replace(/[^A-Z0-9]+/g,'').slice(0,max)||'NA';
+}
+function buildProductTags({cat,type,loc,deal,tenure,beds,baths,features,amenities}){
+ const catTags={
+  Residential:['rumah','hartanah kediaman','rumah subsale'],
+  Commercial:['hartanah komersial','kedai','lot komersial'],
+  Industrial:['hartanah industri','kilang','gudang'],
+  Land:['tanah untuk dijual','tanah hartanah','pelaburan tanah'],
+  Project:['projek hartanah','projek pembangunan','rumah baharu'],
+  Auction:['hartanah lelong','rumah lelong','lelong bank']
+ };
+ const dealTag=deal==='rent'?'untuk disewa':deal==='lease'?'untuk dipajak':'untuk dijual';
+ const tags=[
+  ...(catTags[cat]||[]),
+  type,
+  loc,
+  loc?`${type||'hartanah'} ${loc}`:'',
+  dealTag,
+  tenure,
+  beds?`${beds} bilik tidur`:'',
+  baths?`${baths} bilik air`:'',
+  ...features,
+  ...amenities
+ ].map(x=>(x||'').trim()).filter(Boolean);
+ return unique(tags).slice(0,20);
+}
+function buildSku(cat,type,loc,price){
+ const prefix={Residential:'RES',Commercial:'COM',Industrial:'IND',Land:'LND',Project:'PRJ',Auction:'AUC'}[cat]||'PRP';
+ const date=new Date();
+ const dateCode=String(date.getFullYear()).slice(-2)+String(date.getMonth()+1).padStart(2,'0')+String(date.getDate()).padStart(2,'0');
+ const seed=[cat,type,loc,price].join('|');
+ let hash=0;for(let i=0;i<seed.length;i++)hash=(hash*31+seed.charCodeAt(i))>>>0;
+ const suffix=(hash%10000).toString().padStart(4,'0');
+ return `MPIRE-${prefix}-${slugCode(loc,7)}-${dateCode}-${suffix}`;
+}
+async function copyField(id){
+ const el=$(id),value=el.value||'';
+ if(!value){alert('Jana listing dahulu.');return;}
+ try{await navigator.clipboard.writeText(value);alert('Berjaya disalin.');}
+ catch(e){el.select();document.execCommand('copy');alert('Berjaya disalin.');}
+}
+
 function generate(){
  const cat=v('cat'),deal=v('deal'),rent=deal==='rent',lease=deal==='lease',verb=rent?'untuk disewa':lease?'untuk dipajak':'untuk dijual';
  const type=v('customType')||v('type'),loc=v('location'),price=fmtPrice(v('price')),land=areaSqft(v('land')),built=areaSqft(v('built')),beds=v('beds'),baths=v('baths'),tenure=v('tenure'),condition=v('condition'),features=split('features'),amenities=split('amenities'),agent=v('agent'),ren=v('ren'),phone=v('phone'),wa=$('makeWa').checked?makeWhatsAppLink(phone):'';
@@ -214,9 +271,12 @@ function generate(){
  $('copy').textContent=generated;
  $('keywords').innerHTML=key.map(x=>'<span class="chip">'+escapeHtml(x)+'</span>').join('');
  $('hashtags').innerHTML=hashtag.map(x=>'<span class="chip">'+escapeHtml(x)+'</span>').join('');
+ const tags=buildProductTags({cat,type,loc,deal,tenure,beds,baths,features,amenities});
+ $('productTags').value=tags.join(', ');
+ $('propertySku').value=buildSku(cat,type,loc,v('price'));
 }
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function copyText(){if(!generated)return;try{await navigator.clipboard.writeText(generated);alert('Copywriting berjaya disalin.');}catch(e){alert('Clipboard tidak tersedia. Sila pilih dan salin teks.');}}
 function downloadText(){if(!generated)return;let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([generated],{type:'text/plain;charset=utf-8'}));a.download='mpire-smart-listing.txt';a.click();URL.revokeObjectURL(a.href);}
-function resetForm(){document.querySelectorAll('input,textarea').forEach(x=>x.value='');$('makeWa').checked=false;$('cat').value='Residential';$('deal').value='sale';$('customType').value='';updatePropertyTypes();generated='';$('copy').textContent='Lengkapkan maklumat hartanah dan tekan Jana Copywriting Profesional.';$('keywords').innerHTML='<span class="small">Akan dijana secara automatik.</span>';$('hashtags').innerHTML='<span class="small">Akan dijana secara automatik.</span>';}
+function resetForm(){document.querySelectorAll('input,textarea').forEach(x=>x.value='');$('makeWa').checked=false;$('cat').value='Residential';$('deal').value='sale';$('customType').value='';updatePropertyTypes();generated='';$('copy').textContent='Lengkapkan maklumat hartanah dan tekan Jana Copywriting Profesional.';$('keywords').innerHTML='<span class="small">Akan dijana secara automatik.</span>';$('hashtags').innerHTML='<span class="small">Akan dijana secara automatik.</span>';if($('productTags'))$('productTags').value='';if($('propertySku'))$('propertySku').value='';}
 </script></body></html>
