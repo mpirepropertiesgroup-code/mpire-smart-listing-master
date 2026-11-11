@@ -25,15 +25,16 @@ footer{text-align:center;color:#777;font-size:11px;padding:8px 12px 25px}
 @media(max-width:440px){.two{grid-template-columns:1fr}}
 </style></head>
 <body>
-<header><div class="wrap"><div class="brand">MPIRE <span>PROPERTIES</span></div><div class="tag">TRUST • VALUE • RESULTS</div><div style="margin-top:10px;font-weight:700">SMART LISTING AI</div><div class="tag">AUTO COPYWRITING · FACEBOOK SEO</div></div></header>
+<header><div class="wrap"><div class="brand">MPIRE <span>PROPERTIES</span></div><div class="tag">TRUST • VALUE • RESULTS</div><div style="margin-top:10px;font-weight:700">PENJANA IKLAN HARTANAH</div><div class="tag">COPYWRITING AUTOMATIK · SEO FACEBOOK</div></div></header>
 <main>
 <section class="panel">
-<h2><small>01 / PROPERTY DETAILS</small>Isi Maklumat Hartanah</h2>
+<h2><small>01 / MAKLUMAT HARTANAH</small>Isi Maklumat Hartanah</h2>
 <label>Kategori</label><select id="cat"><option value="Residential">Residential</option><option value="Commercial">Commercial</option><option value="Industrial">Industrial</option><option value="Land">Land</option><option value="Project">Project / New Development</option><option value="Auction">Auction / Lelong</option></select>
-<div class="two"><div><label>Jenis Urus Niaga</label><select id="deal"><option value="sale">Untuk Dijual</option><option value="rent">Untuk Disewa</option></select></div><div><label>Jenis Hartanah</label><input id="type" placeholder="Rumah teres 2 tingkat"></div></div>
+<div class="two"><div><label>Jenis Urus Niaga</label><select id="deal"><option value="sale">Untuk Dijual</option><option value="rent">Untuk Disewa</option><option value="lease">Untuk Dipajak</option></select></div><div><label>Jenis Hartanah</label><select id="type"></select></div></div>
+<label>Jenis Hartanah Lain (jika tiada dalam pilihan)</label><input id="customType" placeholder="Isi jenis hartanah sendiri jika perlu">
 <label>Lokasi / Alamat</label><input id="location" placeholder="Taman, bandar, negeri">
-<div class="two"><div><label>Harga (RM)</label><input id="price" type="number" min="0" placeholder="350000"></div><div><label>Keluasan Tanah</label><input id="land" placeholder="1400 sqft"></div></div>
-<div class="two"><div><label>Built-up</label><input id="built" placeholder="1600 sqft"></div><div><label>Tenure / Pegangan</label><select id="tenure"><option value="">Tidak dinyatakan</option><option>Freehold</option><option>Leasehold</option><option>Rezab Melayu / Malay Reserved</option><option>Bumi Lot</option><option>Non-Bumi Lot</option></select></div></div>
+<div class="two"><div><label>Harga (RM)</label><input id="price" type="number" min="0" placeholder="350000"></div><div><label>Keluasan Tanah (sqft)</label><input id="land" inputmode="decimal" placeholder="Contoh: 1,400"></div></div>
+<div class="two"><div><label>Keluasan Binaan / Built-up (sqft)</label><input id="built" inputmode="decimal" placeholder="Contoh: 1,600"></div><div><label>Tenure / Pegangan</label><select id="tenure"><option value="">Tidak dinyatakan</option><option>Freehold</option><option>Leasehold</option><option>Rezab Melayu / Malay Reserved</option><option>Bumi Lot</option><option>Non-Bumi Lot</option></select></div></div>
 <div class="two"><div><label>Bilik Tidur</label><input id="beds" placeholder="4"></div><div><label>Bilik Air</label><input id="baths" placeholder="3"></div></div>
 <label>Kondisi / Renovation</label><select id="condition"><option value="">Tidak dinyatakan</option><option>Fully Renovated</option><option>Partially Renovated</option><option>Basic Renovation</option><option>Well Maintained</option><option>Brand New</option><option>As Is Where Is</option></select>
 <label>Keistimewaan Hartanah</label><textarea id="features" placeholder="Contoh: kitchen cabinet, awning, gated & guarded, corner lot"></textarea>
@@ -41,45 +42,63 @@ footer{text-align:center;color:#777;font-size:11px;padding:8px 12px 25px}
 <div class="two"><div><label>Nama Ejen</label><input id="agent" placeholder="Nama ejen"></div><div><label>No. REN</label><input id="ren" placeholder="Contoh: REN 12345"></div></div>
 <label>Telefon / WhatsApp</label><input id="phone" placeholder="01X-XXXXXXX">
 <label>Link WhatsApp (pilihan)</label><input id="wa" placeholder="https://wa.me/60...">
-<div class="actions"><button class="primary" onclick="generate()">GENERATE PROFESSIONAL LISTING</button><button class="soft" onclick="resetForm()">RESET</button></div>
+<div class="actions"><button class="primary" onclick="generate()">JANA COPYWRITING PROFESIONAL</button><button class="soft" onclick="resetForm()">RESET</button></div>
 <p class="small">Isi fakta yang ada sahaja. Sistem tidak akan mereka maklumat hartanah yang tidak diberikan.</p>
 </section>
 <section class="panel">
-<h2><small>02 / AUTO GENERATED CONTENT</small>Copywriting Profesional</h2>
-<div id="copy" class="out">Lengkapkan maklumat hartanah dan tekan Generate Professional Listing.</div>
-<div class="actions"><button class="dark" onclick="copyText()">COPY FULL LISTING</button><button class="soft" onclick="downloadText()">DOWNLOAD TXT</button></div>
-<div class="section"><h3>Primary & Supporting Keywords</h3><div id="keywords" class="chips"><span class="small">Akan dijana secara automatik.</span></div></div>
-<div class="section"><h3>Facebook Hashtags</h3><div id="hashtags" class="chips"><span class="small">Akan dijana secara automatik.</span></div></div>
-<div class="section"><h3>SEO Posting Tips</h3><div class="small">Keyword utama diletakkan dalam tajuk dan ayat awal. Lokasi dan ciri hartanah dimasukkan secara semula jadi. Hashtag dipilih berdasarkan kategori dan lokasi. Ini ialah cadangan SEO, bukan data ranking atau volume carian Facebook yang disahkan.</div></div>
+<h2><small>02 / HASIL IKLAN AUTOMATIK</small>Copywriting Profesional</h2>
+<div id="copy" class="out">Lengkapkan maklumat hartanah dan tekan Jana Copywriting Profesional.</div>
+<div class="actions"><button class="dark" onclick="copyText()">SALIN IKLAN PENUH</button><button class="soft" onclick="downloadText()">MUAT TURUN TXT</button></div>
+<div class="section"><h3>Kata Kunci Utama & Sokongan</h3><div id="keywords" class="chips"><span class="small">Akan dijana secara automatik.</span></div></div>
+<div class="section"><h3>Hashtag Facebook</h3><div id="hashtags" class="chips"><span class="small">Akan dijana secara automatik.</span></div></div>
+<div class="section"><h3>Panduan SEO Facebook</h3><div class="small">Keyword utama diletakkan dalam tajuk dan ayat awal. Lokasi dan ciri hartanah dimasukkan secara semula jadi. Hashtag dipilih berdasarkan kategori dan lokasi. Ini ialah cadangan SEO, bukan data ranking atau volume carian Facebook yang disahkan.</div></div>
 </section></main>
-<footer>MPIRE PROPERTIES · HOMEFIELD REAL ESTATE SDN. BHD. · Verify all property details before publishing.</footer>
+<footer>MPIRE PROPERTIES · HOMEFIELD REAL ESTATE SDN. BHD. · Sila semak semua maklumat hartanah sebelum diterbitkan.</footer>
 <script>
 const $=id=>document.getElementById(id),v=id=>$(id).value.trim();
 const split=id=>v(id).split(/,|\n/).map(x=>x.trim()).filter(Boolean);
 const unique=a=>[...new Set(a.filter(Boolean))];
+
 let generated='';
-const categoryTerms={
-Residential:{bm:['rumah untuk dijual','rumah untuk disewa','rumah subsale','rumah teres','rumah keluarga','rumah first home buyer','rumah murah'],en:['house for sale','house for rent','terrace house','subsale property','residential property']},
-Commercial:{bm:['kedai untuk dijual','kedai untuk disewa','lot kedai','hartanah komersial','ruang pejabat'],en:['shoplot for sale','shoplot for rent','commercial property','office space','retail lot']},
-Industrial:{bm:['kilang untuk dijual','kilang untuk disewa','gudang untuk disewa','tanah industri','hartanah industri'],en:['factory for sale','factory for rent','warehouse for rent','industrial property','industrial land']},
-Land:{bm:['tanah untuk dijual','tanah pertanian untuk dijual','tanah bangunan','tanah lot banglo','pelaburan tanah'],en:['land for sale','agricultural land','residential land','bungalow land','land investment']},
-Project:{bm:['projek rumah baru','projek hartanah','rumah baru untuk dijual','projek pembangunan'],en:['new property launch','new development','new homes for sale','property project']},
-Auction:{bm:['rumah lelong','rumah lelong bank','hartanah lelong','rumah lelong murah'],en:['property auction','bank auction property','auction house','auction property']}
+const propertyOptions={
+ Residential:['Rumah Teres 1 Tingkat','Rumah Teres 2 Tingkat','Rumah Teres 3 Tingkat','Rumah Berkembar (Semi-D)','Rumah Banglo','Rumah Kluster','Townhouse','Apartment','Kondominium','Flat','Rumah Teres Kos Rendah','Rumah Kampung'],
+ Commercial:['Kedai Pejabat (Shop Office)','Lot Kedai (Shoplot)','Lot Kedai Tingkat Bawah','Lot Kedai Tingkat Atas','Pejabat','Ruang Runcit','Ruang Niaga','Pusat Komersial','SOHO','Bangunan Komersial'],
+ Industrial:['Kilang Teres','Kilang Berkembar','Kilang Sesebuah','Gudang','Pusat Logistik','Lot Industri','Tanah Industri','Bangunan Industri'],
+ Land:['Tanah Bangunan','Tanah Pertanian','Tanah Kediaman','Tanah Komersial','Tanah Industri','Lot Banglo','Tanah Pembangunan','Tanah Tepi Jalan','Tanah Dusun'],
+ Project:['Rumah Teres Projek Baharu','Rumah Berkembar Projek Baharu','Banglo Projek Baharu','Apartment Projek Baharu','Kondominium Projek Baharu','Townhouse Projek Baharu','Pembangunan Komersial','Pembangunan Industri'],
+ Auction:['Rumah Teres Lelong','Rumah Berkembar Lelong','Banglo Lelong','Apartment Lelong','Kondominium Lelong','Kedai Lelong','Pejabat Lelong','Kilang Lelong','Tanah Lelong']
 };
+function updatePropertyTypes(){
+ const cat=$('cat').value, sel=$('type'), old=sel.value;
+ sel.innerHTML='<option value="">Pilih jenis hartanah</option>'+propertyOptions[cat].map(x=>'<option>'+x+'</option>').join('');
+ if(propertyOptions[cat].includes(old))sel.value=old;
+}
+$('cat').addEventListener('change',updatePropertyTypes);
+updatePropertyTypes();
+
+const categoryTerms={
+Residential:{bm:['rumah untuk dijual','rumah untuk disewa','rumah subsale','rumah teres','rumah berkembar','rumah banglo','rumah keluarga','rumah mampu milik','rumah pertama']},
+Commercial:{bm:['kedai untuk dijual','kedai untuk disewa','lot kedai untuk dijual','lot kedai untuk disewa','ruang pejabat untuk disewa','hartanah komersial','pelaburan hartanah komersial']},
+Industrial:{bm:['kilang untuk dijual','kilang untuk disewa','gudang untuk disewa','gudang untuk dijual','tanah industri untuk dijual','hartanah industri']},
+Land:{bm:['tanah untuk dijual','tanah pertanian untuk dijual','tanah bangunan untuk dijual','tanah lot banglo','tanah tepi jalan','tanah industri','pelaburan tanah']},
+Project:{bm:['projek rumah baharu','projek hartanah baharu','rumah baharu untuk dijual','projek pembangunan hartanah']},
+Auction:{bm:['rumah lelong','rumah lelong bank','hartanah lelong','rumah lelong bawah harga pasaran','rumah lelong untuk pelaburan']}
+}
 function titleCase(s){return s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}
 function fmtPrice(p){return p?'RM '+Number(p).toLocaleString('en-MY'):''}
+function areaSqft(x){if(!x)return '';return /sq\\s*ft|sqft|kaki\\s*persegi/i.test(x)?x:x+' sqft';}
 function generate(){
- const cat=v('cat'),rent=v('deal')==='rent',verb=rent?'untuk disewa':'untuk dijual',enVerb=rent?'for rent':'for sale';
- const type=v('type'),loc=v('location'),price=fmtPrice(v('price')),land=v('land'),built=v('built'),beds=v('beds'),baths=v('baths'),tenure=v('tenure'),condition=v('condition'),features=split('features'),amenities=split('amenities'),agent=v('agent'),phone=v('phone'),wa=v('wa');
+ const cat=v('cat'),deal=v('deal'),rent=deal==='rent',lease=deal==='lease',verb=rent?'untuk disewa':lease?'untuk dipajak':'untuk dijual';
+ const type=v('customType')||v('type'),loc=v('location'),price=fmtPrice(v('price')),land=areaSqft(v('land')),built=areaSqft(v('built')),beds=v('beds'),baths=v('baths'),tenure=v('tenure'),condition=v('condition'),features=split('features'),amenities=split('amenities'),agent=v('agent'),ren=v('ren'),phone=v('phone'),wa=v('wa');
  if(!type&&!loc){alert('Sila isi sekurang-kurangnya jenis hartanah dan lokasi.');return;}
- const locWords=loc?[`${cat==='Land'?'tanah':cat==='Industrial'?'kilang':cat==='Commercial'?'kedai':'rumah'} ${verb} ${loc}`,`${cat.toLowerCase()} ${enVerb} ${loc}`,`property ${loc}`]:[];
- const base=categoryTerms[cat],key=unique([type?`${type} ${verb}`:'',...locWords,...base.bm.slice(0,5),...base.en.slice(0,4),...features.map(x=>`${x} ${loc}`)]);
- const hashtag=unique(['#MPIREProperties','#HomefieldRealEstate',loc?'#'+loc.replace(/[^a-z0-9]/gi,''):'',...(cat==='Residential'?['#RumahUntukDijual','#HartanahMalaysia','#PropertyMalaysia']:cat==='Commercial'?['#ShoplotForSale','#CommercialProperty']:cat==='Industrial'?['#FactoryForSale','#IndustrialProperty']:cat==='Land'?['#TanahUntukDijual','#LandForSale']:cat==='Auction'?['#RumahLelong','#PropertyAuction']:['#NewProperty','#PropertyMalaysia'])]);
- const details=[land?'• Land Area: '+land:'',built?'• Built-up Area: '+built:'',beds?'• Bedrooms: '+beds:'',baths?'• Bathrooms: '+baths:'',tenure?'• Tenure: '+tenure:'',condition?'• Condition: '+condition:''].filter(Boolean);
- const title=type||cat+' Property',headline=`${rent?'UNTUK DISEWA':'UNTUK DIJUAL'} | ${title.toUpperCase()}${loc?' DI '+loc.toUpperCase():''}`;
- const bm=[`🏡 ${headline}`,price?`💰 ${rent?'Rental':'Harga Jualan'}: ${price}${rent?' / bulan':''}`:'',details.length?'📋 BUTIRAN HARTANAH\n'+details.join('\n'):'',features.length?'✨ KELEBIHAN HARTANAH\n'+features.map(x=>'• '+x).join('\n'):'',amenities.length?'📍 LOKASI STRATEGIK & KEMUDAHAN BERDEKATAN\n'+amenities.map(x=>'• '+x).join('\n'):'',`Mencari ${title.toLowerCase()} ${verb}${loc?' di '+loc:''}? Ini peluang untuk anda. Hubungi kami bagi mendapatkan maklumat lanjut atau mengatur viewing.`,agent?'👤 Ejen: '+agent:'',ren?'🪪 REN No.: '+ren:'',phone?'📲 WhatsApp: '+phone:'',wa?'🔗 '+wa:'','HOMEFIELD ESTATE SDN BHD ( E(1)1339 )','-ESTABLISHED SINCE 1996-','| BUY | SELL | REFINANCE | RENT-RESIDENTIAL | NEW DEVELOPMENT | LAND | COMMERCIAL |',hashtag.join(' ')].filter(Boolean).join('\n\n');
- const en=[`🏡 ${rent?'FOR RENT':'FOR SALE'} | ${title.toUpperCase()}${loc?' IN '+loc.toUpperCase():''}`,price?`💰 ${rent?'Rental':'Asking Price'}: ${price}${rent?' / month':''}`:'',details.length?'📋 PROPERTY DETAILS\n'+details.join('\n'):'',features.length?'✨ PROPERTY HIGHLIGHTS\n'+features.map(x=>'• '+x).join('\n'):'',amenities.length?'📍 STRATEGIC LOCATION & NEARBY AMENITIES\n'+amenities.map(x=>'• '+x).join('\n'):'',`Looking for a ${title.toLowerCase()} ${enVerb}${loc?' in '+loc:''}? Contact us for more information or to arrange a viewing.`,agent?'👤 Agent: '+agent:'',phone?'📲 WhatsApp: '+phone:'',wa?'🔗 '+wa:'','MPIRE PROPERTIES | HOMEFIELD REAL ESTATE SDN. BHD.',hashtag.join(' ')].filter(Boolean).join('\n\n');
- generated=bm+'\n\n━━━━━━━━━━━━━━━━━━━━\n\n'+en;
+ const locWords=loc?[`${cat==='Land'?'tanah':cat==='Industrial'?'kilang':cat==='Commercial'?'kedai':'rumah'} ${verb} ${loc}`,`${cat==='Land'?'tanah':cat==='Industrial'?'kilang':cat==='Commercial'?'hartanah komersial':'hartanah'} ${loc}`,`hartanah di ${loc}`]:[];
+ const base=categoryTerms[cat],key=unique([type?`${type} ${verb}`:'',...locWords,...base.bm,...features.map(x=>`${x} ${loc}`)]);
+ const hashtag=unique(['#MPIREProperties','#HomefieldRealEstate',loc?'#'+loc.replace(/[^a-z0-9]/gi,''):'',...(cat==='Residential'?['#RumahUntukDijual','#RumahUntukDisewa','#HartanahMalaysia']:cat==='Commercial'?['#KedaiUntukDijual','#KedaiUntukDisewa','#HartanahKomersial']:cat==='Industrial'?['#KilangUntukDijual','#KilangUntukDisewa','#HartanahIndustri']:cat==='Land'?['#TanahUntukDijual','#TanahPertanian','#PelaburanTanah']:cat==='Auction'?['#RumahLelong','#HartanahLelong']:['#ProjekRumahBaharu','#ProjekHartanah'])]);
+ const details=[land?'• Keluasan Tanah: '+land:'',built?'• Keluasan Binaan (Built-up): '+built:'',beds?'• Bilik Tidur: '+beds:'',baths?'• Bilik Air: '+baths:'',tenure?'• Pegangan: '+tenure:'',condition?'• Keadaan: '+condition:''].filter(Boolean);
+ const categoryMalay={Residential:'Hartanah Kediaman',Commercial:'Hartanah Komersial',Industrial:'Hartanah Industri',Land:'Tanah',Project:'Projek Hartanah',Auction:'Hartanah Lelong'};
+ const title=type||categoryMalay[cat],dealLabel=rent?'UNTUK DISEWA':lease?'UNTUK DIPAJAK':'UNTUK DIJUAL',priceLabel=rent?'Harga Sewa':lease?'Kadar Pajakan':'Harga Jualan',headline=`${dealLabel} | ${title.toUpperCase()}${loc?' DI '+loc.toUpperCase():''}`;
+ const bm=[`🏡 ${headline}`,price?`💰 ${priceLabel}: ${price}${rent?' / bulan':lease?' (tertakluk kepada tempoh pajakan)':''}`:'',details.length?'📋 BUTIRAN HARTANAH\n'+details.join('\n'):'',features.length?'✨ KELEBIHAN HARTANAH\n'+features.map(x=>'• '+x).join('\n'):'',amenities.length?'📍 LOKASI STRATEGIK & KEMUDAHAN BERDEKATAN\n'+amenities.map(x=>'• '+x).join('\n'):'',`Mencari ${title.toLowerCase()} ${verb}${loc?' di '+loc:''}? Ini peluang untuk anda. Hubungi kami bagi mendapatkan maklumat lanjut atau mengatur lawatan.`,agent?'👤 Ejen: '+agent:'',ren?'🪪 No. REN: '+ren:'',phone?'📲 WhatsApp: '+phone:'',wa?'🔗 '+wa:'',hashtag.join(' '),'HOMEFIELD ESTATE SDN BHD ( E(1)1339 )','-ESTABLISHED SINCE 1996-','| BUY | SELL | REFINANCE | RENT-RESIDENTIAL | NEW DEVELOPMENT | LAND | COMMERCIAL |'].filter(Boolean).join('\n\n');
+ generated=bm;
  $('copy').textContent=generated;
  $('keywords').innerHTML=key.map(x=>'<span class="chip">'+escapeHtml(x)+'</span>').join('');
  $('hashtags').innerHTML=hashtag.map(x=>'<span class="chip">'+escapeHtml(x)+'</span>').join('');
@@ -87,5 +106,5 @@ function generate(){
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function copyText(){if(!generated)return;try{await navigator.clipboard.writeText(generated);alert('Copywriting berjaya disalin.');}catch(e){alert('Clipboard tidak tersedia. Sila pilih dan salin teks.');}}
 function downloadText(){if(!generated)return;let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([generated],{type:'text/plain;charset=utf-8'}));a.download='mpire-smart-listing.txt';a.click();URL.revokeObjectURL(a.href);}
-function resetForm(){document.querySelectorAll('input,textarea').forEach(x=>x.value='');$('cat').value='Residential';$('deal').value='sale';generated='';$('copy').textContent='Lengkapkan maklumat hartanah dan tekan Generate Professional Listing.';$('keywords').innerHTML='<span class="small">Akan dijana secara automatik.</span>';$('hashtags').innerHTML='<span class="small">Akan dijana secara automatik.</span>';}
+function resetForm(){document.querySelectorAll('input,textarea').forEach(x=>x.value='');$('cat').value='Residential';$('deal').value='sale';$('customType').value='';updatePropertyTypes();generated='';$('copy').textContent='Lengkapkan maklumat hartanah dan tekan Jana Copywriting Profesional.';$('keywords').innerHTML='<span class="small">Akan dijana secara automatik.</span>';$('hashtags').innerHTML='<span class="small">Akan dijana secara automatik.</span>';}
 </script></body></html>
